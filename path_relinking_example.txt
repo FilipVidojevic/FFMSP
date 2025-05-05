@@ -1,0 +1,2 @@
+path relinking for CCAG and AAGA (AAGA is guiding solution):
+CCAG (C->A) ACAG (C->A) AAAG (A->G) AAGG (G->A) AAGA

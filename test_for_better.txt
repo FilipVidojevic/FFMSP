@@ -1,0 +1,8 @@
+# This test helps with understanding >lex operator (when one solution is better than another)
+# Solutions ACGT and ACGA both have objective function equal to 2 (for t=2), since their
+# distance to CATT and CAGT are >=2. But, ACGA >lex ACGT because ACGT is 'more distant' to
+# CATT and CAGT than ACGA.
+ACGT
+ACGA
+CATT
+CAGT

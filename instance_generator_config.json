@@ -1,0 +1,7 @@
+{
+  "alphabet": ["A", "C", "G", "T"],
+  "number_of_instances": 100,
+  "number_of_sequences": [100, 200],
+  "sequence_length": [300, 600, 800],
+  "dir_name": "ffsmp_instances"
+}
