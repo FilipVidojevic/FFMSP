@@ -2,7 +2,7 @@
 git_utils.py
 ========
 
-Utility functions which use git to obtain relevant information.
+Utility functions which use git to obtain relevant information (e.g., repo root).
 
 """
 
