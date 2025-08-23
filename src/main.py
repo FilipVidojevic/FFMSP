@@ -1,9 +1,9 @@
-import sys
 import numpy as np
 import random
 import time
 from collections import defaultdict
-import concurrent.futures
+import gurobipy as gp
+from gurobipy import GRB
 
 class FFSMP:
     alphabet = []
@@ -342,12 +342,31 @@ class FFSMP:
         self.append_result(s)
         return sbs
 
+    def solution_polishing(self, sbs):
+        model = gp.Model("sentence")
+
+        x = {}
+        y = {}
+        for i in range(1, self.sequence_length +1):
+            for j in range(1, self.alphabet_size + 1):
+                x[i,j] = model.addVar(vtype=GRB.BINARY, name=f"x_{i}_{self.alphabet[j]}")
+
+        for i in range(1, self.n+1):
+            y[i] = model.addVar(vtype=GRB.BINARY, name=f"y_{i}")
+
+        for i in range(1, self.sequence_length+1):
+            model.addConstr(gp.quicksum(x[i,j] for j in range(1, self.alphabet_size+1)) == 1, name=f"one_letter_at_pos_{i}")
+
+        model.setObjective(gp.quicksum(y[i] for i in range(1, self.n+1)), GRB.MAXIMIZE)
+
+        model.update()
+
     def append_result(self, s):
         with open("results.csv", 'a') as f:  # 'a' means append mode
             f.write(f"{self.file_path},{self.t_scale}, {self.ro}, {self.objective_function(s)}\n")
 
 def main():
-    problem = FFSMP("FFMSP_instances/100-300-001.txt", t_scale=0.8)
+    problem = FFSMP("data/datasets/100-300-001.txt", t_scale=0.8)
     best = problem.hybrid_ACO(50, 1000000)
     #print("Found solution: " + str(best))
     print("OBJ: " + str(problem.objective_function(best)))
