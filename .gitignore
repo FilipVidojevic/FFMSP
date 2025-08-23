@@ -1,2 +1,2 @@
-# Ignore downloaded datasets
+# Ignore downloaded and generated files
 data/
