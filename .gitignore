@@ -1,2 +1,3 @@
 # Ignore downloaded and generated files
 data/
+**/__pycache__/
