@@ -1,0 +1,5 @@
+{
+    "path_relinking_strategy": "greedy",
+    "apply_LS_after_PR": false,
+    "local_search_strategy": "first_improvement"
+}
