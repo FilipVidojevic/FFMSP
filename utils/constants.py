@@ -1,0 +1,6 @@
+BEST_IMPROVEMENT = "best_improvement"
+FIRST_IMPROVEMENT = "first_improvement"
+PR_RANDOM = "random"
+PR_GREEDY = "greedy"
+WITH_LS_AFTER_PR = "with_ls_after_pr"
+WITHOUT_LS_AFTER_PR = "without_ls_after_pr"
