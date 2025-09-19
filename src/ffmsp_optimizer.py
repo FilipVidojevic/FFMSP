@@ -9,6 +9,7 @@ from collections import defaultdict
 import gurobipy as gp
 from gurobipy import GRB
 import json
+from utils.constants import *
 
 class FFMSP_Optimizer:
     alphabet = []
@@ -60,8 +61,8 @@ class FFMSP_Optimizer:
         try:
             with open(config_path, 'r') as config_file:
                 config = json.load(config_file)
-                self.path_relinking_strategy = config.get("path_relinking_strategy", "greedy")
-                self.local_search_strategy = config.get("local_search_strategy", "best_improvement")
+                self.path_relinking_strategy = config.get("path_relinking_strategy", PR_GREEDY)
+                self.local_search_strategy = config.get("local_search_strategy", BEST_IMPROVEMENT)
                 self.apply_LS_after_PR = config.get("apply_LS_after_PR", False)
 
                 print(json.dumps(config, indent=4))
@@ -183,14 +184,15 @@ class FFMSP_Optimizer:
         self.objective_values_cache[tuple(s)] = count
 
         return self.objective_values_cache[tuple(s)]
+        return count
 
     qs_distance_cache = {}
     def Qs_distance(self, s):
         """ Calculates the sum of distances to s from all sequences whose distance to s
         is at least t, plus the largest distance to s from all distances lower than t.
         """
-        if tuple(s) in self.qs_distance_cache:
-            return self.qs_distance_cache[tuple(s)]
+        #if tuple(s) in self.qs_distance_cache:
+        #    return self.qs_distance_cache[tuple(s)]
 
         distance = 0
         max_lower_than_t = 0
@@ -204,6 +206,7 @@ class FFMSP_Optimizer:
 
         self.qs_distance_cache[tuple(s)] = distance + max_lower_than_t
         return self.qs_distance_cache[tuple(s)]
+        #return distance + max_lower_than_t
 
     def better(self, s1, s2):
         if s2 == []:
@@ -243,7 +246,7 @@ class FFMSP_Optimizer:
                     if self.would_improve(s, i, c):
                         s[i] = c
                         has_improved = True
-                        if self.local_search_strategy == "first_improvement":
+                        if self.local_search_strategy == FIRST_IMPROVEMENT:
                             return s
 
         return s
@@ -263,7 +266,7 @@ class FFMSP_Optimizer:
         """
         Selects the best move from the list of possible moves based on the move selection strategy.
         """
-        if self.path_relinking_strategy == "random":
+        if self.path_relinking_strategy == PR_RANDOM:
             return random.choice(moves)
 
         best_move = moves[0]
@@ -302,6 +305,52 @@ class FFMSP_Optimizer:
 
         if self.apply_LS_after_PR:
             best = self.local_search(best)
+
+        return best
+
+    def path_relinking_from_left_to_right(self, initial_solution, guiding_solution):
+        """
+        Implement path relinking from initial_solution
+        to guiding_solution.
+        """
+        if guiding_solution == []:
+            return initial_solution
+        if initial_solution == []:
+            return guiding_solution
+        best = initial_solution
+        current = initial_solution.copy()
+
+        moves_left = self.symmetric_difference(initial_solution, guiding_solution)
+
+        while moves_left != []:
+            best_move = moves_left[0]
+            moves_left.remove(best_move)
+            current[best_move] = guiding_solution[best_move]
+            if self.better(current, best):
+                best = current.copy()
+
+        return best
+
+    def path_relinking_from_right_to_left(self, initial_solution, guiding_solution):
+        """
+        Implement path relinking from initial_solution
+        to guiding_solution.
+        """
+        if guiding_solution == []:
+            return initial_solution
+        if initial_solution == []:
+            return guiding_solution
+        best = initial_solution
+        current = initial_solution.copy()
+
+        moves_left = self.symmetric_difference(initial_solution, guiding_solution)
+        moves_left.reverse()
+        while moves_left != []:
+            best_move = moves_left[0]
+            moves_left.remove(best_move)
+            current[best_move] = guiding_solution[best_move]
+            if self.better(current, best):
+                best = current.copy()
 
         return best
 
